@@ -17,8 +17,9 @@
 ;; [Listof Number] -> Natural
 ;; Compute the length of given list of numbers
 (define (length-lon ls)
-  ;; TODO
-  0)
+  (match ls
+    ['() 0]
+    [(cons _ rest) (+ 1 (length-lon rest))]))
 
 (module+ test
   (check-equal? (length-lon '()) 0)
@@ -29,8 +30,9 @@
 ;; [Listof Number] -> Number
 ;; Compute the sum of given list of numbers
 (define (sum ls)
-  ;; TODO
-  0)
+  (match ls
+    ['() 0]
+    [(cons n rest) (+ n (sum rest))]))
 
 (module+ test
   (check-equal? (sum '()) 0)
@@ -42,8 +44,9 @@
 ;; Compute the pairwise sum of given list of numbers
 ;; ASSUME: lists have equal length
 (define (zip-add ls1 ls2)
-  ;; TODO
-  '())
+  (match (list ls1 ls2)
+    [('(() ())) '()]
+    [(list (cons x xs) (cons y ys)) (cons (+ x y) (zip-add xs ys))]))
 
 (module+ test
   (check-equal? (zip-add '() '()) '())
@@ -54,8 +57,9 @@
 ;; Compute the pairwise list of given list of numbers
 ;; ASSUME: lists have equal length
 (define (zip-lon ls1 ls2)
-  ;; TODO
-  '())
+  (match (list ls1 ls2)
+    [('(() ())) '()]
+    [(list (cons x xs) (cons y ys)) (cons (list x y) (zip-lon xs ys))]))
 
 (module+ test
   (check-equal? (zip-lon '() '()) '())
@@ -65,8 +69,9 @@
 ;; [Pairof Real [Listof Real]] -> Real
 ;; Compute a minimum element of non-empty list of numbers
 (define (min-lon xs)
-  ;; TODO
-  0)
+  (match xs
+    [(list x) x]
+    [(cons x rest) (min x (min-lon rest))]))
 
 (module+ test
   (check-equal? (min-lon '(1)) 1)
@@ -78,8 +83,9 @@
 ;; Sort list into descending order
 ;; HINT: do insertion sort by writing and using the helper below
 (define (sort-desc xs)
-  ;; TODO
-  xs)
+  (match xs
+    ['() '()]
+    [(cons x rest) (insert-desc x (sort-desc rest))]))
 
 (module+ test
   (check-equal? (sort-desc '()) '())
@@ -92,8 +98,11 @@
 ;; Insert number into sorted list
 ;; ASSUME: given list is sorted in descending order
 (define (insert-desc n xs)
-  ;; TODO
-  xs)
+  (match xs
+    ['() (list n)]
+    [(cons x rest) (if (>= n x)
+                       (cons n xs)
+                       (cons x (insert-desc n rest)))]))
 
 (module+ test
   (check-equal? (insert-desc 5 '()) '(5))
