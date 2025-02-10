@@ -3,7 +3,7 @@
 (module+ test
   (require rackunit))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Peano numbers
 
 ;; Unary encoding of the natural numbers
@@ -19,8 +19,9 @@
 ;; Natural -> N
 ;; Convert natural to Peano
 (define (nat->peano n)
-  ;; TODO
-  (Z))
+  (if (= n 0)
+      (Z)
+      (S (nat->peano (- n 1)))))
 
 (module+ test
   (check-equal? (nat->peano 0) (Z))
@@ -31,8 +32,9 @@
 ;; N -> Natural
 ;; Convert Peano to natural
 (define (peano->nat n)
-  ;; TODO
-  0)
+  (match n
+    [(Z) 0]
+    [(S pred) (+ 1 (peano->nat pred))]))
 
 (module+ test
   (check-equal? (peano->nat (Z)) 0)
@@ -45,8 +47,9 @@
 ;; N N -> N
 ;; Add two Peano numbers together
 (define (plus n1 n2)
-  ;; TODO
-  (Z))
+  (match n1
+    [(Z) n2]
+    [(S pred) (S (plus pred n2))]))
 
 (module+ test
   (check-equal? (plus (Z) (Z)) (Z))
@@ -57,19 +60,22 @@
 ;; N N -> N
 ;; Multiply two Peano numbers together
 (define (mult n1 n2)
-  ;; TODO
-  (Z))
+  (match n1
+    [(Z) (Z)]
+    [(S pred) (plus n2 (mult pred n2))]))
 
 (module+ test
   (check-equal? (mult (Z) (Z)) (Z))
   (check-equal? (mult (Z) (S (Z))) (Z))
   (check-equal? (mult (S (Z)) (Z)) (Z))
-  (check-equal? (mult (S (Z)) (S (Z))) (S (Z))))
+  (check-equal? (mult (S (Z)) (S (Z))) (S (Z)))
+  (check-equal? (mult (S (S (Z))) (S (S (Z)))) (S (S (S (S (Z)))))))
 
 ;; ∀ (α) N (α -> α) -> (α -> α)
 (define (iter n f)
-  ;; TODO
-  (λ (a) a))
+  (match n
+    [(Z) (λ (a) a)]
+    [(S pred) (λ (a) (f ((iter pred f) a)))]))
 
 (module+ test
   ;; Natural -> Natural
