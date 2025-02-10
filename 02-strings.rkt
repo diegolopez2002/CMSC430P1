@@ -37,7 +37,7 @@
   (let ([chars (explode s)])
     (if (< (length chars) 2)
         '()
-        (map list chars (cdr chars)))))
+        (map list (take chars (- (length chars) 1)) (cdr chars)))))
 
 (module+ test
   (check-equal? (bigrams "") '())
