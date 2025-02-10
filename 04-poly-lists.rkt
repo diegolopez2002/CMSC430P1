@@ -9,8 +9,12 @@
 ;; ∀ (α) (α -> Real) [Pairof α [Listof α]] -> α
 ;; Find element that minimizes the given measure (take first if more than one)
 (define (minimize f xs)
-  ;; TODO
-  (first xs))
+  (foldl (λ (x min-x)
+           (if (< (f x) (f min-x))
+               x
+               min-x))
+         (first xs)
+         (rest xs)))
 
 (module+ test
   (check-equal? (minimize abs '(1 -2 3)) 1)
@@ -20,9 +24,14 @@
 ;; ∀ (α) (α α -> Boolean) [Listof α] -> [Listof α]
 ;; Sort list in ascending order according to given comparison
 ;; ENSURE: result is stable
+(define (insert x xs <)
+  (cond
+    [(empty? xs) (list x)]
+    [(< x (first xs)) (cons x xs)]
+    [else (cons (first xs) (insert x (rest xs) <))]))
+
 (define (sort < xs)
-  ;; TODO
-  xs)
+  (foldl (λ (x acc) (insert x acc <)) '() xs))
 
 (module+ test
   (check-equal? (sort < '(1 -2 3)) '(-2 1 3))
@@ -36,8 +45,7 @@
 ;; Zip together lists into a list of lists
 ;; ASSUME: lists are the same length
 (define (zip as bs)
-  ;; TODO
-  '())
+  (map list as bs))
 
 (module+ test
   (check-equal? (zip '() '()) '())
@@ -49,10 +57,10 @@
 ;; Compose a list of functions into a single function
 ;; ((pipe (list f1 f2 f3)) x) ≡ (f1 (f2 (f3 x)))
 (define (pipe fs)
-  ;; TODO
-  (λ (x) x))
+  (λ (x) (foldr (λ (f acc) (f acc)) x fs)))
 
 (module+ test
   (check-equal? ((pipe (list number->string sqr add1)) 5) "36")
   (check-equal? ((pipe (list number->string add1 sqr)) 5) "26")
   (check-equal? ((pipe (list string-length number->string add1 sqr)) 5) 2))
+
