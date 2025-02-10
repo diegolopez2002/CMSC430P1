@@ -9,8 +9,9 @@
 ;; Natural -> Natural
 ;; Compute n!
 (define (fact n)
-  ;; TODO
-  1)
+  (if (= n 0)
+      1
+      (* n (fact (- n 1))))) 
 
 (module+ test
   (check-equal? (fact 0) 1)
@@ -21,8 +22,10 @@
 ;; Natural -> Natural
 ;; Compute nth Fibonnaci number
 (define (fib n)
-  ;; TODO
-  0)
+  (cond
+    [(= n 0) 0]
+    [(= n 1) 1]
+    [else (+ (fib (- n 1)) (fib (- n 2)))]))
 
 (module+ test
   (check-equal? (fib 0) 0)
