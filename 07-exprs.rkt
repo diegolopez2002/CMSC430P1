@@ -6,37 +6,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Representing expressions
 
-;; Here is a datatype definition for representing expressions in a small
-;; functional programming language:
-
-;; type SExpr =
-;; | Integer
-;; | Boolean
-;; | Variable
-;; | (list e1 e2)
-;; | (list 'lambda (list Variable) e)
-
-;; type Variable = Symbol
-
-;; Some examples of valid programs:
-;; 34
-;; #t
-;; 'x
-;; '((lambda (x) x) 17)
-
-;; The above definition is easy to read, but can be troublesome to work with.
-;; Instead of using the SExpr representation, we will transform it into a
-;; more structured representation (this will be our AST).
-
-;; type Expr =
-;; | (Int Integer)
-;; | (Bool Boolean)
-;; | (Var Variable)
-;; | (App Expr Expr)
-;; | (Lam Variable Expr)
-
-;; type Variable = Symbol
-
 ;; We will be using these structures:
 (struct Int  (i)      #:prefab)
 (struct Bool (b)      #:prefab)
@@ -44,14 +13,6 @@
 (struct App  (e1 e2)  #:prefab)
 (struct Lam  (x e)    #:prefab)
 
-;; After converting the above SExpr programs into Expr representation:
-;; (Int 34)
-;; (Bool #t)
-;; (Var 'x)
-;; (App (Lam 'x (Var 'x)) (Int 17))
-
-;; We already wrote a helper function to put SExpr programs into this
-;; new representation. Feel free to play around with this in your REPL.
 ;; SExpr -> Expr
 (define (sexpr->expr s)
   (match s
@@ -61,26 +22,6 @@
     [(list e1 e2)       (App (sexpr->expr e1) (sexpr->expr e2))]
     [(list 'lambda (list (? symbol? x)) e)
      (Lam x (sexpr->expr e))]))
-
-;; Below is a template of how to traverse this AST:
-
-#;
-(define (expr-template e)
-  (match e
-    [(Int i) ...]
-    [(Bool b) ...]
-    [(Var v) ...]
-    [(App e1 e2)
-     (... (expr-template e1)
-          (expr-template e2) ...)]
-    [(Lam x e)
-     (... x (expr-template e) ...)]))
-
-
-;; Note: for each of the following functions, the order of elements
-;; and whether repetitions occur is left unspecified and up to you.
-;; The tests are written using this function to take this in to
-;; account.
 
 (module+ test
   ;; [Listof a] [Listof a] -> Boolean
@@ -93,12 +34,15 @@
   (check-equal? (list-set-equal? (list 1 1 2) (list 2 2 1)) #t)
   (check-equal? (list-set-equal? (list 1 1 2) (list 2 3 2 1)) #f))
 
-
 ;; Expr -> [Listof Integer]
 ;; Computes a list of all integer literals that appear in the expression
 (define (expr-integers e)
-  ;; TODO
-  '())
+  (match e
+    [(Int i) (list i)]
+    [(Bool _) '()]
+    [(Var _) '()]
+    [(App e1 e2) (append (expr-integers e1) (expr-integers e2))]
+    [(Lam _ e) (expr-integers e)]))
 
 (module+ test
   (check list-set-equal? (expr-integers (sexpr->expr 123)) '(123))
@@ -109,8 +53,12 @@
 ;; Expr -> [Listof Variable]
 ;; Compute a list of all lambda-bound variables in the expression
 (define (expr-lambda-vars e)
-  ;; TODO
-  '())
+  (match e
+    [(Int _) '()]
+    [(Bool _) '()]
+    [(Var _) '()]
+    [(App e1 e2) (append (expr-lambda-vars e1) (expr-lambda-vars e2))]
+    [(Lam x e) (cons x (expr-lambda-vars e))]))
 
 (module+ test
   (check list-set-equal? (expr-lambda-vars (sexpr->expr 123)) '())
@@ -119,14 +67,19 @@
   (check list-set-equal? (expr-lambda-vars (sexpr->expr '((lambda (x) 42) 123))) '(x)))
 
 ;; Expr -> [Listof Variable]
-;; Compute a list of all free variables, i.e. variables which occur outside
+;; Compute a list of all free variables, i.e., variables which occur outside
 ;; of any lambda that binds them.
-(define (expr-free-vars e)
-  ;; TODO
-  '())
+(define (expr-free-vars e [bound '()])
+  (match e
+    [(Int _) '()]
+    [(Bool _) '()]
+    [(Var v) (if (member v bound) '() (list v))]
+    [(App e1 e2) (append (expr-free-vars e1 bound) (expr-free-vars e2 bound))]
+    [(Lam x e) (expr-free-vars e (cons x bound))]))
 
 (module+ test
   (check list-set-equal? (expr-free-vars (sexpr->expr 123)) '())
   (check list-set-equal? (expr-free-vars (sexpr->expr 'x)) '(x))
   (check list-set-equal? (expr-free-vars (sexpr->expr '((lambda (x) x) 123))) '())
   (check list-set-equal? (expr-free-vars (sexpr->expr '((lambda (x) 42) 123))) '()))
+
