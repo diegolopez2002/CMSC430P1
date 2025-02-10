@@ -11,8 +11,9 @@
 ;; String String -> String
 ;; Select the longer of the two strings (or first if same length)
 (define (longer s1 s2)
-  ;; TODO
-  s1)
+  (if (>= (string-length s1) (string-length s2))
+      s1
+      s2))
 
 (module+ test
   (check-equal? (longer "" "") "")
@@ -23,8 +24,7 @@
 ;; String -> [Listof String]
 ;; Explode a string into a list of length-1 strings
 (define (explode s)
-  ;; TODO
-  '())
+  (map string (string->list s)))
 
 (module+ test
   (check-equal? (explode "") '())
@@ -34,8 +34,10 @@
 ;; String -> [Listof [List String String]]
 ;; Compute list of bigrams (pairs of adjacent letters) in a string
 (define (bigrams s)
-  ;; TODO
-  '())
+  (let ([chars (explode s)])
+    (if (< (length chars) 2)
+        '()
+        (map list chars (cdr chars)))))
 
 (module+ test
   (check-equal? (bigrams "") '())
