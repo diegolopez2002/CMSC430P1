@@ -45,7 +45,7 @@
 ;; ASSUME: lists have equal length
 (define (zip-add ls1 ls2)
   (match (list ls1 ls2)
-    [('(() ())) '()]
+    [(list '() '()) '()]
     [(list (cons x xs) (cons y ys)) (cons (+ x y) (zip-add xs ys))]))
 
 (module+ test
@@ -58,7 +58,7 @@
 ;; ASSUME: lists have equal length
 (define (zip-lon ls1 ls2)
   (match (list ls1 ls2)
-    [('(() ())) '()]
+    [(list '() '()) '()]
     [(list (cons x xs) (cons y ys)) (cons (list x y) (zip-lon xs ys))]))
 
 (module+ test
